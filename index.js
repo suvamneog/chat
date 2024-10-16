@@ -25,13 +25,13 @@ console.log("Attempting to connect to MongoDB...");
 const startTime = Date.now();
 
 mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
 }).then(() => {
-    const duration = Date.now() - startTime;
-    console.log(`Connected to MongoDB in ${duration} ms`);
+  console.log("Connected to MongoDB");
 }).catch((err) => {
-    console.error("MongoDB connection error", err);
+  console.error("MongoDB connection error", err);
 });
 //all chats
 app.get("/chats", async (req, res) => {
@@ -138,7 +138,4 @@ app.get("/", async (req, res) => {
   res.render("index.ejs", { chats });
 });
 
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`App is listening on port ${PORT}`);
-});
+module.exports = app;
