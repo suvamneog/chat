@@ -5,21 +5,30 @@ const methodOverride = require("method-override");
 app.use(methodOverride("_method"));
 const mongoose = require("mongoose");
 const Chat = require("./models/chat");
-
+require("dotenv").config();
 // Middleware
 app.set("view engine", "ejs");
 app.use(express.urlencoded({extended: true}));
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, 'public')));
-main()
-  .then(() => {
-    console.log("Connected");
-  })
-  .catch((err) => console.log(err));
+// main()
+//   .then(() => {
+//     console.log("Connected");
+//   })
+//   .catch((err) => console.log(err));
 
-async function main() {
-  await mongoose.connect("mongodb://127.0.0.1:27017/whatsapp");
-}
+// async function main() {
+//   await mongoose.connect("mongodb://127.0.0.1:27017/whatsapp");
+// }
+
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+  console.log("Connected to MongoDB");
+}).catch((err) => {
+  console.error("MongoDB connection error", err);
+});
 
 //all chats
 app.get("/chats", async (req,res) => {
@@ -34,25 +43,43 @@ app.get("/chats/new",(req ,res) => {
 });
 
 //submit new chat
-app.post("/chats",(req,res) => {
-    let {from,message,to}=req.body;
-    let newChat = new Chat({
-        from : from,
-        to: to,
-        message: message,
-        created_at : new Date()
-    });
-    // console.log(newChat);
-    newChat
-    .save()
-    .then((result)=> {
-        console.log(result);
-    })
-    .catch((err)=> {
-        console.log(err);
-    });
+app.post("/chats", async (req, res) => {
+  let { from, message, to } = req.body;
+  let newChat = new Chat({
+    from: from,
+    to: to,
+    message: message,
+    created_at: new Date(),
+  });
+
+  try {
+    await newChat.save();
     res.redirect("/chats");
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error saving chat.");
+  }
 });
+// app.post("/chats",(req,res) => {
+//     let {from,message,to}=req.body;
+//     let newChat = new Chat({
+//         from : from,
+//         to: to,
+//         message: message,
+//         created_at : new Date()
+//     });
+//     // console.log(newChat);
+//     newChat
+//     .save()
+//     .then((result)=> {
+//         console.log(result);
+//     })
+//     .catch((err)=> {
+//         console.log(err);
+//     });
+//     res.redirect("/chats");
+// });
+
 
 //open edit chat page
 app.get("/chats/:id/edit", async (req,res) => {
@@ -65,19 +92,28 @@ app.get("/chats/:id/edit", async (req,res) => {
 app.put("/chats/:id", async (req,res) => {
     let {id} = req.params;
     let {message} = req.body;
+    try {
     let updatedChat = await Chat.findOneAndUpdate({ _id: id } ,{message : message},{ new: true },); // {new:true} Return the updated document
     res.redirect("/chats");
     console.log(updatedChat);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error updating chat.");
+  }
 });
 
 //delete chat
 app.delete("/chats/:id", async (req,res) => {
     let {id} = req.params;
+    try {
     let deleteChat = await Chat.findByIdAndDelete(id);
     res.redirect("/chats");
     console.log(deleteChat);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error deleting chat.");
+  }
 });
-
 
 // let chat1 = new Chat({
 //     from : "Suvam",
@@ -90,10 +126,12 @@ app.delete("/chats/:id", async (req,res) => {
 // .then(data => {
 //     console.log(data);
 // });
-app.get("/", (req, res) => {
-  res.redirect("/chats");
+app.get("/", async (req, res) => {
+  let chats = await Chat.find();
+  res.render("index.ejs", { chats });
 });
 
-app.listen(8080, () => {
-  console.log("App is listening on port 8080");
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`App is listening on port ${PORT}`);
 });
