@@ -20,10 +20,14 @@
         </div>
             <p> Received by: <i><%= chat.to %></i></p>
      <hr />
-     <form method="Get" action="/chats/<%= chat.id %>/edit">
+     <form method="GET" action="/chats/<%= chat.id %>/edit">
         <button>Update</button>
     </form>
-     <p><%=chat.created_at.toString().split(" ")[4]%></p>
+    <br />
+    <form method="POST" action="/chats/<%=chat.id%>?_method=DELETE">
+        <button>Delete</button>
+    </form>
+     <p>Send at: <%=chat.created_at.toString().split(" ")[4]%></p>
      <p><%=chat.created_at.toString().split(" ").slice(0,4).join("-")%></p>
     </div>
     <br/><br/>

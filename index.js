@@ -62,12 +62,20 @@ app.get("/chats/:id/edit", async (req,res) => {
 });
 
 //submit edit chat
-app.put("/chats/:id",async (req,res) => {
+app.put("/chats/:id", async (req,res) => {
     let {id} = req.params;
     let {message} = req.body;
-    let chats = await Chat.findOneAndUpdate( { _id: id } ,{message : message},{ new: true }); // {new:true} Return the updated document
+    let updatedChat = await Chat.findOneAndUpdate({ _id: id } ,{message : message},{ new: true },); // {new:true} Return the updated document
     res.redirect("/chats");
-    console.log(chats);
+    console.log(updatedChat);
+});
+
+//delete chat
+app.delete("/chats/:id", async (req,res) => {
+    let {id} = req.params;
+    let deleteChat = await Chat.findByIdAndDelete(id);
+    res.redirect("/chats");
+    console.log(deleteChat);
 });
 
 

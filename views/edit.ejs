@@ -6,8 +6,9 @@
     <title>Edit chat</title>
 </head>
 <body>
-    <h2>Edit Chat</h2>
-    <h3>ID :<%=id%></h3>
+    <h1>Edit Chat</h1>
+    <h2>ID :<%=id%></h2>
+    <h3>Chat was send from <i><%= chats.from %></i> to <i><%= chats.to %></i></h3>
     <form method="POST" action="/chats/<%=id%>?_method=PUT">
     <textarea name="message" placeholder="enter message"><%=chats.message%></textarea>
     <br />
