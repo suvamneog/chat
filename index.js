@@ -91,7 +91,7 @@ app.delete("/chats/:id", async (req,res) => {
 //     console.log(data);
 // });
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.redirect("/chats");
 });
 
 app.listen(8080, () => {
