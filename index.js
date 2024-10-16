@@ -21,20 +21,27 @@ app.use(express.static(path.join(__dirname, 'public')));
 //   await mongoose.connect("mongodb://127.0.0.1:27017/whatsapp");
 // }
 
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log("Connected to MongoDB");
-}).catch((err) => {
-  console.error("MongoDB connection error", err);
-});
+console.log("Attempting to connect to MongoDB...");
+const startTime = Date.now();
 
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => {
+    const duration = Date.now() - startTime;
+    console.log(`Connected to MongoDB in ${duration} ms`);
+}).catch((err) => {
+    console.error("MongoDB connection error", err);
+});
 //all chats
-app.get("/chats", async (req,res) => {
-    let chats = await Chat.find();
-    // console.log(chats);
-    res.render("index.ejs",{chats});
+app.get("/chats", async (req, res) => {
+  try {
+      let chats = await Chat.find();
+      res.render("index.ejs", { chats });
+  } catch (error) {
+      console.error("Error fetching chats:", error);
+      res.status(500).send("Error fetching chats.");
+  }
 });
 
 //new chat page
